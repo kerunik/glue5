@@ -6,9 +6,8 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -20,7 +19,7 @@ jobs:
           echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
           mise activate bash >> $GITHUB_ENV
 
-      - name: Build iOS
+      - name: Build
         run: |
           mise install
           mise run setup
