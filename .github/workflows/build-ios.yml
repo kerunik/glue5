@@ -1,41 +1,25 @@
-name: Build iOS
-
+name: iOS
 on:
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: macos-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - name: Install mise
-        run: |
-          curl https://mise.run
- | sh
-          echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
-          mise activate bash >> $GITHUB_ENV
-
-      - name: Build
-        run: |
-          mise install
-          mise run setup
-          mise run ios:build
-
-      - name: Create IPA
-        run: |
-          APP_PATH=$(find . -name "*.app" -type d | head -1)
-          if [ -n "$APP_PATH" ]; then
-            mkdir -p Payload
-            cp -r "$APP_PATH" Payload/
-            zip -r Glue5.ipa Payload
-          fi
-
-      - name: Upload IPA
-        uses: actions/upload-artifact@v4
+      - run: curl -sSL https://mise.run -o mise.sh
+      - run: sh mise.sh
+      - run: echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
+      - run: mise activate bash >> $GITHUB_ENV
+      - run: mise install
+      - run: mise run setup
+      - run: mise run ios:build
+      - run: mkdir -p Payload
+      - run: find . -name '*.app' -type d | head -1 > app.txt
+      - run: cp -r "$(cat app.txt)" Payload/
+      - run: zip -r Glue5.ipa Payload
+      - uses: actions/upload-artifact@v4
         with:
           name: Glue5-iOS
           path: Glue5.ipa
