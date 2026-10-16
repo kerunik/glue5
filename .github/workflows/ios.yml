@@ -1,8 +1,6 @@
-name: Build iOS
-
+name: iOS
 on:
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: macos-latest
@@ -10,19 +8,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      
-      - run: curl https://mise.run | sh
-    run: echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
-    run: mise activate bash >> $GITHUB_ENV
-    run: mise install
-    run: mise run setup
-    run: mise run ios:build
-      
-    run: mkdir -p Payload
-    run: cp -r $(find . -name "*.app" -type d | head -1) Payload/
-    run: zip -r Glue5.ipa Payload
-    
-    uses: actions/upload-artifact@v4
-    with:
-      name: Glue5-iOS
-      path: Glue5.ipa
+      - run: curl -sSL https://mise.run -o mise.sh
+      - run: sh mise.sh
+      - run: echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
+      - run: mise activate bash >> $GITHUB_ENV
+      - run: mise install
+      - run: mise run setup
+      - run: mise run ios:build
+      - run: mkdir -p Payload
+      - run: find . -name '*.app' -type d | head -1 > app.txt
+      - run: cp -r "$(cat app.txt)" Payload/
+      - run: zip -r Glue5.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Glue5-iOS
+          path: Glue5.ipa
